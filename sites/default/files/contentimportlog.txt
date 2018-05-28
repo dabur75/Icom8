@@ -1,0 +1,38 @@
+***************************** Content Import Begins ************************************ 
+ 
+ Data Type : promote  Matches 
+Data Type : body  Matches 
+Data Type : field_m_name_news  Matches 
+Data Type : title  Matches 
+Data Type : langcode  Matches 
+********************************* Importing node ****************************  
+ 
+Importing Boolean (promote) ::  Success 
+Importing Content (body) ::  Success 
+Importing Reference Type (taxonomy_term) ::  Success 
+Importing Content (title) ::  Success 
+********************* Node Imported successfully ********************* 
+
+***************************** Content Import Begins ************************************ 
+ 
+ Data Type : promote  Matches 
+Data Type : body  Matches 
+Data Type : field_m_name_news  Matches 
+Data Type : title  Matches 
+Data Type : langcode  Matches 
+********************************* Importing node ****************************  
+ 
+Importing Boolean (promote) ::  Success 
+Importing Content (body) ::  Success 
+Importing Reference Type (taxonomy_term) ::  Success 
+Importing Content (title) ::  Success 
+********************* Node Imported successfully ********************* 
+
+********************************* Importing node ****************************  
+ 
+Importing Boolean (promote) ::  Success 
+Importing Content (body) ::  Success 
+Importing Reference Type (taxonomy_term) ::  Success 
+Importing Content (title) ::  Success 
+********************* Node Imported successfully ********************* 
+

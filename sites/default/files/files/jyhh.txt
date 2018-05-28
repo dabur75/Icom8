@@ -1,0 +1,27 @@
+<object data="/sites/default/files/NoProblem.swf" type="application/x-shockwave-flash" width="412" height="96"><param name="data" value="somefilename.swf"><param name="src" value="/sites/default/files/NoProblem.swf"><param name="wmode" value="transparent"><param name="loop" value="false"><param name="play" value="false"></object></div> <script type="text/javascript">//
+
+
+<object data="/sites/default/files/NoProblem.swf" type="application/x-shockwave-flash" width="412" height="96"><param name="data" value="somefilename.swf"><param name="src" value="/sites/default/files/NoProblem.swf"><param name="wmode" value="transparent"><param name="loop" value="false"><param name="play" value="false"></object>
+
+function play1()
+{
+   document.write('<span class="mceItemObject"  data="/sites/default/files/NoProblem.swf" type="application/x-shockwave-flash" width="412" height="96">\n');
+   document.write('<span  name="data" value="somefilename.swf" class="mceItemParam"></span>\n');
+   document.write('<span  name="src" value="/sites/default/files/NoProblem.swf" class="mceItemParam"></span>\n');
+   document.write('<span  name="wmode" value="transparent" class="mceItemParam"></span>\n');
+   document.write('<span  name="loop" value="true" class="mceItemParam"></span>\n');
+   document.write('<span  name="play" value="true" class="mceItemParam"></span>\n');
+   document.write('</span>\n');
+} 
+
+  function play1()
+{
+$("#glob object param+param+param+param").attr("value","true");
+//$("param:name").attr("value","true");
+//alert("yrt");
+}
+// ]]></script>
+
+
+
+
