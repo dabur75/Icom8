@@ -308,29 +308,46 @@ class ContentImport extends ConfigFormBase {
           for ($f = 0; $f < count($fieldNames); $f++) {
             switch ($fieldTypes[$f]) {
               case 'image':
+              case 'file':
                 $logVariationFields .= "Importing Image (" . trim($data[$keyIndex[$fieldNames[$f]]]) . ") :: ";
                 if (!empty($data[$keyIndex[$fieldNames[$f]]])) {
                   $imgIndex = trim($data[$keyIndex[$fieldNames[$f]]]);
-                  $files = glob('sites/default/files/' . $contentType . '/images/' . $imgIndex);
-                  $fileExists = file_exists('sites/default/files/' . $imgIndex);
+                  $imgIndex = str_replace('sites/default/files/','',$imgIndex);
+				  $imgIndex = explode(',',$imgIndex); 
+				  //dpm();
+				  foreach ($imgIndex as $imgIndexs) {
+					  //$imgIndexs=iconv("utf-8", "CP1255",$imgIndexs);
+                  $files = glob('sites/default/files/files/' . $imgIndexs);
+				  if (!empty($files)){
+				  //dpm($files);
+                  $fileExists = file_exists('sites/default/files/' . $imgIndexs);
                   if (!$fileExists) {
                     $images = [];
                     foreach ($files as $file_name) {
-                      $image = File::create(['uri' => 'public://' . $contentType . '/images/' . basename($file_name)]);
+							//dpm($file_name);
+					//copy('sites/default/files/' . $contentType . '/images/' . basename($file_name), 'sites/default/files/' . $contentType . '/images/copy/' . basename($file_name));
+                      $image = File::create(['uri' => 'public://files/' . basename($file_name)]);
                       $image->save();
                       $images[basename($file_name)] = $image;
                       $imageId = $images[basename($file_name)]->id();
                       $imageName = basename($file_name);
                     }
-                    $nodeArray[$fieldNames[$f]] = [
+					$this_alt=(!empty($nodeArray['title']))?$nodeArray['title']:explode('.',$imgIndexs)[0];
+                    $nodeArray[$fieldNames[$f]][] = 
                       [
                         'target_id' => $imageId,
-                        'alt' => $nodeArray['title'],
+                        'alt' => $this_alt,
                         'title' => $nodeArray['title'],
-                      ],
-                    ];
+                      ];
+                    }
+				  } else{
+					  $nodeArray[$fieldNames[$f]] = [];
+					  dpm('sites/default/files/files/' . $imgIndexs);
+				  }
+					
                     $logVariationFields .= "Image uploaded successfully \n ";
                   }
+				  //dpm($nodeArray[$fieldNames[$f]]);
                 }
                 $logVariationFields .= " Success \n";
                 break;
@@ -339,7 +356,7 @@ class ContentImport extends ConfigFormBase {
                 $logVariationFields .= "Importing Reference Type (" . $fieldSettings[$f]['target_type'] . ") :: ";
                 if ($fieldSettings[$f]['target_type'] == 'taxonomy_term') {
                   $reference = explode(":", $data[$keyIndex[$fieldNames[$f]]]);
-                  if (is_array($reference) && $reference[0] != '') {
+                  if (is_array($reference) && $reference[0] != '' && $reference[1] != '') {
                     $terms = ContentImport::getTermReference($reference[0], $reference[1]);
                     $nodeArray[$fieldNames[$f]] = $terms;
                   }
@@ -378,8 +395,7 @@ class ContentImport extends ConfigFormBase {
                 $logVariationFields .= " Success \n";
 
                 break;
-
-              case 'datetime':
+			  case 'datetime':
                 $logVariationFields .= "Importing Datetime (" . $fieldNames[$f] . ") :: ";
                 $dateArray = explode(':', $data[$keyIndex[$fieldNames[$f]]]);
                 if (count($dateArray) > 1) {
@@ -391,6 +407,32 @@ class ContentImport extends ConfigFormBase {
                   $newDateString = date('Y-m-d', $dateTimeStamp);
                 }
                 $nodeArray[$fieldNames[$f]] = ["value" => $newDateString];
+                $logVariationFields .= " Success \n";
+				
+                break;
+
+              case 'daterange':
+                $logVariationFields .= "Importing Datetime (" . $fieldNames[$f] . ") :: ";
+				$range_str_array=array();
+                $range_array=explode('-', $data[$keyIndex[$fieldNames[$f]]]);
+				foreach ($range_array as $range) {
+					
+				$dateArray = explode(':', $range);
+                if (count($dateArray) > 1) {
+                  $dateTimeStamp = strtotime($range);
+                  $newDateString = date('Y-m-d\TH:i:00', $dateTimeStamp);
+				  //dpm($newDateString);
+                }
+                else {
+                  $dateTimeStamp = strtotime($range);
+                  $newDateString = date('Y-m-d\T21:00:00', $dateTimeStamp);
+                }
+				$range_str_array[]=$newDateString;
+				}
+				$value=(!empty($range_str_array[0]))?$range_str_array[0]:'';
+				$value2=(!empty($range_str_array[1]))?$range_str_array[1]:'';
+                $nodeArray[$fieldNames[$f]] = ["value" => $value, "end_value" => $value2];
+				//dpm($nodeArray[$fieldNames[$f]]);
                 $logVariationFields .= " Success \n";
                 break;
 
@@ -460,10 +502,24 @@ class ContentImport extends ConfigFormBase {
           $nodeArray['uid'] = 1;
           $nodeArray['promote'] = 0;
           $nodeArray['sticky'] = 0;
+		  $nodes = \Drupal::entityTypeManager()
+			->getStorage('node')
+			->loadByProperties(['title' => $nodeArray['title']['value']]);
+			$existing_node=reset($nodes);
+			
           if ($nodeArray['title']['value'] != '') {
+			  dpm($nodeArray['title']['value']);
+			 if (!$existing_node) {
             $node = Node::create($nodeArray);
             $node->save();
             $logVariationFields .= "********************* Node Imported successfully ********************* \n\n";
+			 } else {
+				 foreach ($nodeArray as $field => $values) {
+					$existing_node->set($field, $values);
+				}
+				$existing_node->save();
+				 $logVariationFields .= "********************* Exist!!!!!! ********************* \n\n";
+			 }
             fwrite($logFile, $logVariationFields);
           }
           $nodeArray = [];
